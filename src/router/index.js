@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Login from '@/components/pages/login'
 import Dashboard from '@/components/Dashboard'
 import Products from '@/components/pages/Products'
+import test from '@/components/HelloWorld'
 
 Vue.use(Router)
 
@@ -16,6 +17,11 @@ export default new Router({
       path: '/login',
       name: 'Login',
       component: Login
+    },
+    {
+      path: '/test',
+      name: 'test',
+      component: test
     },
     {
       path: '/admin',
