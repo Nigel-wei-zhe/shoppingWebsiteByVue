@@ -37,7 +37,8 @@
       </tbody>
     </table>
     <pagination @changePage="getProducts" :page="pagination"></pagination>
-      <div class="modal fade" id="productModal" tabindex="-1" role="dialog"
+    <!-- add/edit modal -->
+    <div class="modal fade" id="productModal" tabindex="-1" role="dialog"
       aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content border-0">
@@ -113,7 +114,7 @@
                 </div>
                 <div class="form-group">
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" v-model="tempProduct.is_enabled" :true-value="1" :false-value="0"
+                    <input class="form-check-input" type="checkbox" v-model="tempProduct.is_enabled" true-value="1" false-value="0"
                       id="is_enabled">
                     <label class="form-check-label" for="is_enabled">
                       是否啟用
@@ -130,6 +131,7 @@
         </div>
       </div>
     </div>
+    <!-- delete model -->
     <div class="modal fade" id="delProductModal" tabindex="-1" role="dialog"
       aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">
@@ -157,7 +159,7 @@
 </template>
 <script>
 import $ from 'jquery'
-import pagination from '../pagination'
+import pagination from '../../pagination'
 
 export default {
   components: {
