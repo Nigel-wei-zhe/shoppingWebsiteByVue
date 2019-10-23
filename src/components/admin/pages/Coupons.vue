@@ -7,27 +7,29 @@
     <table class="table mt-4">
       <thead>
         <tr>
-          <th>優惠劵名稱</th>
-          <th width="">折扣%</th>
-          <th width="">截止日期</th>
-          <th width="">是否啟用</th>
-          <th width="">編輯</th>
+          <th class="text-center">優惠劵名稱</th>
+          <th class="text-center">優惠代號</th>
+          <th class="text-center">折扣%</th>
+          <th class="text-center">截止日期</th>
+          <th class="text-center">是否啟用</th>
+          <th class="text-center">編輯</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="item in coupons" :key="item.id">
-          <td>{{ item.title }}</td>
-          <td class="text-right">
-            {{ item.percent }}
+          <td class="text-center">{{ item.title }}</td>
+          <td class="text-center">{{ item.code }}</td>
+          <td class="text-center">
+            {{ item.percent }} %
           </td>
-          <td>{{ item.due_date}}</td>
-          <td>
+          <td class="text-center">{{ item.due_date | timestampToFormatTime}}</td>
+          <td class="text-center">
             <span v-if="item.is_enabled === 1" class="text-success">啟用</span>
             <span v-else class="text-right">未啟用</span>
           </td>
-          <td class="btn-group">
+          <td class="btn-group d-flex justify-content-center">
             <button type="button" class="btn btn-outline-primary btn-sm" @click="openModel(false, item)">編輯</button>
-            <button type="button" class="btn btn-outline-danger btn-sm" @click="openDelProductModal(item)">刪除</button>
+            <button type="button" class="btn btn-outline-danger btn-sm" @click="openDelModel(item)">刪除</button>
           </td>
         </tr>
       </tbody>
@@ -74,8 +76,31 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">確認</button>
+            <button type="button" class="btn btn-primary" @click="updateCoupon">確認</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- delete modal -->
+    <div class="modal fade bd-example-modal-sm" id="delCouponModal" tabindex="-1" role="dialog"
+      aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content border-0">
+          <div class="modal-header bg-danger text-white">
+            <h5 class="modal-title" id="exampleModalLabel">
+              <span>刪除優惠劵</span>
+            </h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            是否刪除 <strong class="text-danger">{{ tempCoupon.title }}</strong> 優惠劵 (刪除後將無法恢復)。
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">取消</button>
+            <button type="button" class="btn btn-danger" @click="deleteCoupon"
+              >確認刪除</button>
           </div>
         </div>
       </div>
@@ -95,7 +120,7 @@ export default {
       coupons: [],
       pagination: {},
       tempCoupon: {},
-      isNew: false,
+      isNew: false, /* determine request methods */
       isLoading: false
     }
   },
@@ -112,8 +137,65 @@ export default {
       })
     },
     openModel (isNew, item) {
+      const vm = this
+      if (isNew) {
+        vm.tempCoupon = {}
+        vm.isNew = true
+      } else {
+        vm.tempCoupon = Object.assign({}, item)
+        vm.isNew = false
+        const month = new Date(vm.tempCoupon.due_date * 1000).getMonth() < 10 ? 0 + (new Date(vm.tempCoupon.due_date * 1000).getMonth() + 1) : new Date(vm.tempCoupon.due_date * 1000).getMonth() + 1
+        const date = new Date(vm.tempCoupon.due_date * 1000).getDate() < 10 ? 0 + (new Date(vm.tempCoupon.due_date * 1000).getDate()) : new Date(vm.tempCoupon.due_date * 1000).getDate()
+        const formatTime = `${new Date(vm.tempCoupon.due_date * 1000).getFullYear()}-${month}-${date}`
+        vm.tempCoupon.due_date = formatTime
+      }
       $('#couponModal').modal('show')
+    },
+    openDelModel (item) {
+      this.tempCoupon = Object.assign({}, item)
+      $('#delCouponModal').modal('show')
+    },
+    updateCoupon () {
+      const vm = this
+      let api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/admin/coupon`
+      let httpMethod = 'post'
+      const timestamp = new Date(vm.tempCoupon.due_date).getTime()
+      vm.tempCoupon.due_date = Math.floor(timestamp / 1000)
+
+      if (!vm.isNew) {
+        api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/admin/coupon/${vm.tempCoupon.id}`
+        httpMethod = 'put'
+      }
+      this.$http[httpMethod](api, {data: vm.tempCoupon}).then((response) => {
+        console.log(response.data)
+        if (response.data.success) {
+          $('#couponModal').modal('hide')
+          vm.getCoupons()
+        } else {
+          $('#couponModal').modal('hide')
+          vm.getCoupons()
+          console.log(`新增失敗`)
+        }
+      })
+    },
+    deleteCoupon () {
+      const vm = this
+      const api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/admin/coupon/${vm.tempCoupon.id}`
+      this.$http.delete(api).then((response) => {
+        console.log(response.data)
+        if (response.data.success) {
+          $('#delCouponModal').modal('hide')
+          vm.getCoupons()
+        } else {
+          $('#delCouponModal').modal('hide')
+          vm.getCoupons()
+          console.log(`刪除失敗`)
+        }
+      })
     }
+  },
+  created () {
+    this.getCoupons()
   }
 }
 </script>

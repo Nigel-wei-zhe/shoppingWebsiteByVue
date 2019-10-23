@@ -170,7 +170,7 @@ export default {
       products: [],
       pagination: {},
       tempProduct: {},
-      isNew: false,
+      isNew: false, /* determine request methods */
       isLoading: false,
       status: {
         fileUploading: false

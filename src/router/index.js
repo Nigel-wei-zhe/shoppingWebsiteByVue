@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Login from '@/components/pages/login'
-import Dashboard from '@/components/Dashboard'
+import Dashboard from '@/components/admin/Dashboard'
 import Products from '@/components/admin/pages/Products'
 import Orders from '@/components/admin/pages/Orders'
 import Coupons from '@/components/admin/pages/Coupons'
@@ -14,7 +14,7 @@ export default new Router({
   routes: [
     {
       path: '*',
-      redirect: 'Login'
+      redirect: '/Login'
     },
     {
       path: '/login',
