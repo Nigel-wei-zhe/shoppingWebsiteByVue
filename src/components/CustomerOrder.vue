@@ -32,7 +32,7 @@
         </div>
       </div>
     </div>
-
+    <!-- 商品列表 -->
     <div class="modal fade" id="productModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">
         <div class="modal-content border-0">
@@ -73,7 +73,8 @@
         </div>
       </div>
     </div>
-    <div class="my-5 row justify-content-center">
+    <!-- 查看更多 -->
+    <div class="my-5 row justify-content-center" v-if="cart.carts && cart.carts.length > 0">
       <div class="my-5 row justify-content-center">
         <table class="table">
           <thead>
@@ -91,11 +92,11 @@
               </td>
               <td class="align-middle">
                 {{ item.product.title }}
-                <!-- <div class="text-success" v-if="item.coupon">
+                <div class="text-success" v-if="item.coupon">
                   已套用優惠券
-                </div> -->
+                </div>
               </td>
-              <td class="align-middle">{{ item.qty }}/{{ item.product.unit }}</td>
+              <td class="align-middle">{{ item.qty }} {{ item.product.unit }}</td>
               <td class="align-middle text-right">{{ item.final_total }}</td>
             </tr>
           </tbody>
@@ -104,25 +105,25 @@
               <td colspan="3" class="text-right">總計</td>
               <td class="text-right">{{ cart.total }}</td>
             </tr>
-            <tr>
+            <tr v-if="cart.final_total !== cart.total">
               <td colspan="3" class="text-right text-success">折扣價</td>
               <td class="text-right text-success">{{ cart.final_total }}</td>
             </tr>
           </tfoot>
         </table>
         <div class="input-group mb-3 input-group-sm">
-          <input type="text" class="form-control" placeholder="請輸入優惠碼">
+          <input type="text" class="form-control" v-model="coupon_code" placeholder="請輸入優惠碼">
           <div class="input-group-append">
-            <button class="btn btn-outline-secondary" type="button">
+            <button class="btn btn-outline-secondary" type="button" @click="addCouponCode()">
               套用優惠碼
             </button>
           </div>
         </div>
       </div>
     </div>
+    <!-- 購物車列表 -->
   </div>
 </template>
-
 <script>
 import $ from 'jquery'
 
@@ -135,7 +136,8 @@ export default {
       status: {
         loadingItem: ''
       },
-      isLoading: false
+      isLoading: false,
+      coupon_code: ''
     }
   },
   methods: {
@@ -193,7 +195,21 @@ export default {
         vm.getCart()
         vm.isLoading = false
       })
+    },
+    addCouponCode () {
+      const vm = this
+      const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/coupon`
+      const coupon = {
+        code: vm.coupon_code
+      }
+      vm.isLoading = true
+      this.$http.post(url, { data: coupon }).then(response => {
+        console.log(response)
+        vm.getCart()
+        vm.isLoading = false
+      })
     }
+
   },
   created () {
     this.getProducts()
