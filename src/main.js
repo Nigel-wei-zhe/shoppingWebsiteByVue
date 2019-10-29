@@ -4,8 +4,11 @@ import Vue from 'vue'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 import 'bootstrap'
-import Loading from 'vue-loading-overlay'
 import 'vue-loading-overlay/dist/vue-loading.css'
+import Loading from 'vue-loading-overlay'
+import { ValidationProvider, extend, ValidationObserver } from 'vee-validate'
+import * as rules from 'vee-validate/dist/rules'
+import tw from 'vee-validate/dist/locale/zh_TW'
 
 import App from './App'
 import router from './router'
@@ -16,6 +19,22 @@ import timestampToFormatTimeFilter from './filters/timestampToFormatTime'
 Vue.config.productionTip = false
 Vue.use(VueAxios, axios)
 axios.defaults.withCredentials = true
+
+for (let rule in rules) {
+  extend(rule, {
+    ...rules[rule], // add the rule
+    message: tw.messages[rule] // 把 message 加進去並中文化
+  })
+}
+extend('telRegExp', {
+  validate: value => {
+    const reg = /^09\d{8}$/
+    return reg.test(value)
+  },
+  message: '電話 格式錯誤'
+}) // 自訂的手機號碼驗證
+Vue.component('ValidationProvider', ValidationProvider)
+Vue.component('ValidationObserver', ValidationObserver)
 
 Vue.component('Loading', Loading)
 Vue.filter('currency', currencyFilter)

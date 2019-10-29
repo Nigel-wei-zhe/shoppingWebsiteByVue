@@ -122,6 +122,49 @@
       </div>
     </div>
     <!-- 購物車列表 -->
+    <div class="my-5 row justify-content-center">
+      <ValidationObserver ref="observer" tag="form" v-slot="{ invalid }" @submit.prevent="createOrder">
+        <div class="form-group">
+          <ValidationProvider name="Email" rules="required|email" v-slot="{ errors }">
+            <label for="useremail">Email</label>
+            <input type="email" class="form-control" name="email" id="useremail"
+              v-model="form.user.email" placeholder="請輸入 Email">
+            <span class="text-danger">{{ errors[0] }}</span>
+          </ValidationProvider>
+        </div>
+        <div class="form-group">
+          <ValidationProvider name="收件人姓名" rules="required" v-slot="{ errors }">
+            <label for="username">收件人姓名</label>
+            <input type="text" class="form-control" name="name" id="username"
+                v-model="form.user.name" placeholder="輸入姓名">
+            <span class="text-danger">{{ errors[0] }}</span>
+          </ValidationProvider>
+        </div>
+        <div class="form-group">
+          <ValidationProvider name="收件人手機電話" rules="required|telRegExp" v-slot="{ errors }">
+            <label for="usertel">收件人電話</label>
+            <input type="tel" class="form-control" id="usertel" v-model="form.user.tel" placeholder="請輸入電話">
+            <span class="text-danger">{{ errors[0] }}</span>
+          </ValidationProvider>
+        </div>
+        <div class="form-group">
+          <ValidationProvider name="收件人地址" rules="required" v-slot="{ errors }">
+            <label for="useraddress">收件人地址</label>
+            <input type="text" class="form-control" name="address" id="useraddress" v-model="form.user.address"
+              placeholder="請輸入地址">
+            <span class="text-danger">{{ errors[0] }}</span>
+          </ValidationProvider>
+        </div>
+        <div class="form-group">
+          <label for="comment">留言</label>
+          <textarea name="" id="comment" class="form-control" cols="30" rows="10" v-model="form.message"></textarea>
+        </div>
+        <div class="text-right">
+          <button class="btn btn-danger" :disabled="invalid">送出訂單</button>
+        </div>
+      </ValidationObserver>
+    </div>
+    <!-- 訂單 -->
   </div>
 </template>
 <script>
@@ -135,6 +178,15 @@ export default {
       cart: {},
       status: {
         loadingItem: ''
+      },
+      form: {
+        user: {
+          name: '',
+          email: '',
+          tel: '',
+          address: ''
+        },
+        message: ''
       },
       isLoading: false,
       coupon_code: ''
@@ -208,8 +260,23 @@ export default {
         vm.getCart()
         vm.isLoading = false
       })
+    },
+    createOrder () {
+      const vm = this
+      const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/order`
+      const order = vm.form
+      const isValid = this.$refs.observer.validate()
+      vm.isLoading = true
+      if (!isValid) {
+        vm.isLoading = false
+        console.log('欄位錯誤')
+      } else {
+        this.$http.post(url, { data: order }).then(response => {
+          console.log(`訂單已建立`, response)
+          vm.isLoading = false
+        })
+      }
     }
-
   },
   created () {
     this.getProducts()
