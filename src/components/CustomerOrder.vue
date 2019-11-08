@@ -32,7 +32,7 @@
         </div>
       </div>
     </div>
-    <!-- 商品列表 -->
+    <!-- 商品列表 ↑ -->
     <div class="modal fade" id="productModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">
         <div class="modal-content border-0">
@@ -73,7 +73,7 @@
         </div>
       </div>
     </div>
-    <!-- 查看更多 -->
+    <!-- 查看更多 ↑ -->
     <div class="my-5 row justify-content-center" v-if="cart.carts && cart.carts.length > 0">
       <div class="my-5 row justify-content-center">
         <table class="table">
@@ -121,7 +121,7 @@
         </div>
       </div>
     </div>
-    <!-- 購物車列表 -->
+    <!-- 購物車列表 ↑ -->
     <div class="my-5 row justify-content-center">
       <ValidationObserver ref="observer" tag="form" v-slot="{ invalid }" @submit.prevent="createOrder">
         <div class="form-group">
@@ -164,7 +164,7 @@
         </div>
       </ValidationObserver>
     </div>
-    <!-- 訂單 -->
+    <!-- 訂單 ↑ -->
   </div>
 </template>
 <script>
@@ -273,6 +273,9 @@ export default {
       } else {
         this.$http.post(url, { data: order }).then(response => {
           console.log(`訂單已建立`, response)
+          if (response.data.success) {
+            vm.$router.push(`Customer_Checkout/${response.data.orderId}`)
+          }
           vm.isLoading = false
         })
       }
